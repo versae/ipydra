@@ -1,0 +1,13 @@
+<html>
+  <form method="POST">
+    {{ form.username(class='input-medium', placeholder='Your username.') }}
+    <button type="submit">Let's go!</button>
+  </form>
+  {% if form.errors %}
+  <div>
+    <div>
+      Login failed!
+    </div>
+  </div>
+  {% endif %}
+</html>
