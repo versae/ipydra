@@ -5,10 +5,10 @@
     <meta charset="utf-8">
     <title>IPydra</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="static/css/bootstrap.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet">
     {% block styles %}
     {% endblock %}
-    <link href="static/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/bootstrap-responsive.css') }}" rel="stylesheet">
   </head>
 
   <body>
