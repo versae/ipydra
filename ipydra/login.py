@@ -11,8 +11,7 @@ from flask.ext.shelve import get_shelve
 from flask.ext.wtf import Form
 from flask.ext.wtf import TextField
 
-bp = Blueprint('frontend', __name__,
-               template_folder='templates', static_folder='static')
+bp = Blueprint('frontend', __name__)
 
 class LoginForm(Form):
     username = TextField('Username')
@@ -92,5 +91,5 @@ def create_user(username):
     config_file.close()
 
     # clone git repo
-    git_repo = 'git://github.com/UnataInc/ipython-hydra.git'
-    sh.git.clone(git_repo, nb_dir)
+    #git_repo = 'git://github.com/UnataInc/ipython-hydra.git'
+    #sh.git.clone(git_repo, nb_dir)
