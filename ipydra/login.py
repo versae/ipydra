@@ -38,7 +38,9 @@ def nbserver():
             port = db['count']
             # start server
             pid = run_server(ip_dir, port)
-            db[username] = {'pid': pid, 'port': port}
+            users = db.get('users', dict())
+            users[username] = {'pid': pid, 'port': port}
+            db['users'] = users
             # sleep to let the server start and listen
             sh.sleep(1)
         else:
