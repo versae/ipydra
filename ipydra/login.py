@@ -19,6 +19,8 @@ class LoginForm(Form):
 @bp.route('/', methods=['GET', 'POST'])
 def nbserver():
     from ipydra import ROOT_DIR
+    from ipydra import NB_URL
+
     form = LoginForm(csrf_enabled=False)
     if form.validate_on_submit():
         db = get_shelve('c')
@@ -40,8 +42,8 @@ def nbserver():
             # sleep to let the server start and listen
             sh.sleep(1)
         else:
-            port = db[username]['port']
-        return redirect('http://54.235.166.187:{0}'.format(port))
+            port = db['users'][username]['port']
+        return redirect('{0}:{1}'.format(NB_URL, port))
     return render_template('login.jinja.html', form=form)
 
 def run_server(ip_dir, port):
