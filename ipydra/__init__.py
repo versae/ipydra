@@ -9,5 +9,5 @@ shelve.init_app(app)
 
 ROOT_DIR = '/home/ubuntu/repos/ipydra/data/'
 
-from frontend import bp as bp_frontend
-app.register_blueprint(bp_frontend)
+from login import bp as bp_login
+app.register_blueprint(bp_login)
