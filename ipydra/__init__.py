@@ -12,3 +12,6 @@ NB_URL = 'http://54.235.166.187'
 
 from login import bp as bp_login
 app.register_blueprint(bp_login)
+
+from admin import bp as bp_admin
+app.register_blueprint(bp_admin, url_prefix='/admin')

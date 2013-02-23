@@ -1,0 +1,12 @@
+{% extends "default.jinja.html" %}
+
+{% block content %}
+  <h2>IPydra Notebook Listing</h2>
+
+  <ul>
+  {% for username, info in notebooks.iteritems() %}
+    <li><a href="{{ NB_URL }}:{{ info['port'] }}">{{ username }}</a></li>
+  {% endfor %}
+  <ul>
+
+{% endblock %}
