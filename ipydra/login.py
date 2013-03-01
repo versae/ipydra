@@ -2,6 +2,7 @@ import os
 import os.path
 import sh
 import subprocess
+import shutil
 
 from flask import Blueprint
 from flask import redirect
@@ -94,6 +95,8 @@ def create_user(username):
     config_file.write(config)
     config_file.close()
 
-    # clone git repo
-    #git_repo = 'git://github.com/UnataInc/ipython-hydra.git'
-    #sh.git.clone(git_repo, nb_dir)
+    # copy data files over
+    shutil.copytree('/home/ubuntu/repos/pycon2013/data/',
+                    '{0}/data'.format(nb_dir))
+    shutil.copy('/home/ubuntu/repos/pycon2013/questions.ipynb',
+                '{0}/questions.ipynb'.format(nb_dir))

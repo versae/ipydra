@@ -8,7 +8,7 @@ app.config['SHELVE_FILENAME'] = 'shelve.db'
 shelve.init_app(app)
 
 ROOT_DIR = '/home/ubuntu/repos/ipydra/data/'
-NB_URL = 'http://54.235.166.187'
+NB_URL = 'https://pycon.unata.com'
 
 from login import bp as bp_login
 app.register_blueprint(bp_login)
