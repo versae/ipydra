@@ -10,12 +10,21 @@ from flask import render_template
 from flask import url_for
 from flask.ext.shelve import get_shelve
 from flask.ext.wtf import Form
+from flask.ext.wtf import PasswordField
 from flask.ext.wtf import TextField
 
 bp = Blueprint('frontend', __name__)
 
 class LoginForm(Form):
     username = TextField('Username')
+    password = PasswordField('Password')
+
+    def validate(self):
+        from ipydra import bcrypt
+        # first check password
+        return bcrypt.check_password_hash(
+            '$2a$12$x3dxjmTasFhnxuK7n2ifu.GZIQV3tAM97YjHR5Yy/hGPuPGLhyd4C',
+            self.password.data)
 
 @bp.route('/', methods=['GET', 'POST'])
 def nbserver():

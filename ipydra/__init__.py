@@ -1,8 +1,11 @@
 from flask import Flask
 from flask.ext import shelve
+from flask.ext.bcrypt import Bcrypt
 
 app = Flask(__name__)
 app.debug = True
+
+bcrypt = Bcrypt(app)
 
 app.config['SHELVE_FILENAME'] = 'shelve.db'
 shelve.init_app(app)
