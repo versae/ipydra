@@ -13,6 +13,8 @@ from flask.ext.wtf import TextField
 
 from ipydra import db
 from ipydra import models
+from ipydra import ROOT_DIR
+from ipydra import NB_URL
 
 bp = Blueprint('frontend', __name__)
 
@@ -34,9 +36,6 @@ class LoginForm(Form):
 
 @bp.route('/', methods=['GET', 'POST'])
 def nbserver():
-    from ipydra import ROOT_DIR
-    from ipydra import NB_URL
-
     form = LoginForm(csrf_enabled=False)
     if form.validate_on_submit():
         username = str(form.username.data)
@@ -77,14 +76,11 @@ def run_server(ip_dir, port):
 def user_exists(username):
     """ Check if user exists.
     """
-    from ipydra import ROOT_DIR
     return os.path.exists('{0}{1}'.format(ROOT_DIR, username))
 
 def create_user(username):
     """ Create a new user.
     """
-    from ipydra import ROOT_DIR
-
     user_dir = '{0}{1}'.format(ROOT_DIR, username)
     ip_dir = '{0}/.ipython'.format(user_dir)
     log_file = '{0}/log'.format(ip_dir)
