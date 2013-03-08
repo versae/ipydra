@@ -48,13 +48,14 @@ def nbserver():
             user = models.User()
             user.username = username
             user.nbserver_port = port
-            db.session.add(user)
+            user = db.session.merge(user)
             db.session.commit()
+        if not os.path.exists('{0}{1}'.format(ROOT_DIR, username)):
             create_user_dir(username)
         if (not user.nbserver_pid or
             not os.path.exists('/proc/{0}'.format(user.nbserver_pid))):
             user.nbserver_pid = run_server(ip_dir, user.nbserver_port)
-            db.session.add(user)
+            user = db.session.merge(user)
             db.session.commit()
             # sleep to let server start listening
             sh.sleep(1)
@@ -87,8 +88,6 @@ def create_user_dir(username):
     os.makedirs(data_dir)
     sh.touch(log_file)
 
-    # generate ssl cert
-
     # render config
     config = render_template('ipython_notebook_config.jinja.py',
                              username=username,
@@ -99,5 +98,10 @@ def create_user_dir(username):
     config_file.close()
 
     # copy data files over
-    shutil.copytree('/home/ubuntu/repos/pycon2013/',
-                    '{0}'.format(nb_dir))
+    shutil.copytree('/home/ubuntu/repos/pycon2013/', '{0}'.format(nb_dir))
+
+    # render update_score script
+    script = render_template('update_score.jinja.py', username=username)
+    script_file = open('{0}/update_score.py'.format(nb_dir), 'w')
+    script_file.write(script)
+    script_file.close()

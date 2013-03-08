@@ -6,3 +6,4 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True)
     nbserver_port = db.Column(db.Integer, unique=True)
     nbserver_pid = db.Column(db.Integer, unique=True)
+    score = db.Column(db.Float)
