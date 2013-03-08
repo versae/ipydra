@@ -40,26 +40,25 @@ def nbserver():
     if form.validate_on_submit():
         username = str(form.username.data)
         ip_dir = '{0}/.ipython'.format(ROOT_DIR + username)
-        # create user directories if they dont exist
-        if not user_exists(username):
-            create_user(username)
-        # check if user already has a server running
         user = models.User.query.filter(models.User.username == username).first()
         if not user:
+            # get the next server port
             port = 9499 + models.User.query.count() + 1
-            # start server
-            pid = run_server(ip_dir, port)
+            # create user
             user = models.User()
             user.username = username
             user.nbserver_port = port
-            user.nbserver_pid = pid
             db.session.add(user)
             db.session.commit()
-            # sleep to let the server start and listen
+            create_user_dir(username)
+        if (not user.nbserver_pid or
+            not os.path.exists('/proc/{0}'.format(user.nbserver_pid))):
+            user.nbserver_pid = run_server(ip_dir, user.nbserver_port)
+            db.session.add(user)
+            db.session.commit()
+            # sleep to let server start listening
             sh.sleep(1)
-        else:
-            port = user.nbserver_port
-        return redirect('{0}:{1}'.format(NB_URL, port))
+        return redirect('{0}:{1}'.format(NB_URL, user.nbserver_port))
     return render_template('login.jinja.html', form=form)
 
 def run_server(ip_dir, port):
@@ -73,12 +72,7 @@ def run_server(ip_dir, port):
                             '--NotebookApp.ipython_dir={0}'.format(ip_dir)]).pid
     return pid
 
-def user_exists(username):
-    """ Check if user exists.
-    """
-    return os.path.exists('{0}{1}'.format(ROOT_DIR, username))
-
-def create_user(username):
+def create_user_dir(username):
     """ Create a new user.
     """
     user_dir = '{0}{1}'.format(ROOT_DIR, username)
