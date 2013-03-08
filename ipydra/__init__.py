@@ -1,14 +1,14 @@
 from flask import Flask
-from flask.ext import shelve
 from flask.ext.bcrypt import Bcrypt
+from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.debug = True
 
-bcrypt = Bcrypt(app)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ipydra.db'
+db = SQLAlchemy(app)
 
-app.config['SHELVE_FILENAME'] = 'shelve.db'
-shelve.init_app(app)
+bcrypt = Bcrypt(app)
 
 ROOT_DIR = '/home/ubuntu/repos/ipydra/data/'
 NB_URL = 'https://pycon.unata.com'

@@ -7,11 +7,12 @@ import shutil
 from flask import Blueprint
 from flask import redirect
 from flask import render_template
-from flask import url_for
-from flask.ext.shelve import get_shelve
 from flask.ext.wtf import Form
 from flask.ext.wtf import PasswordField
 from flask.ext.wtf import TextField
+
+from ipydra import db
+from ipydra import models
 
 bp = Blueprint('frontend', __name__)
 
@@ -22,9 +23,14 @@ class LoginForm(Form):
     def validate(self):
         from ipydra import bcrypt
         # first check password
-        return bcrypt.check_password_hash(
+        if not bcrypt.check_password_hash(
             '$2a$12$x3dxjmTasFhnxuK7n2ifu.GZIQV3tAM97YjHR5Yy/hGPuPGLhyd4C',
-            self.password.data)
+            self.password.data):
+            return False
+        if not self.username.data.isalnum():
+            return False
+        return True
+
 
 @bp.route('/', methods=['GET', 'POST'])
 def nbserver():
@@ -33,35 +39,34 @@ def nbserver():
 
     form = LoginForm(csrf_enabled=False)
     if form.validate_on_submit():
-        db = get_shelve('c')
         username = str(form.username.data)
         ip_dir = '{0}/.ipython'.format(ROOT_DIR + username)
         # create user directories if they dont exist
         if not user_exists(username):
             create_user(username)
         # check if user already has a server running
-        if username not in db:
-            # increment port counter
-            if 'count' not in db:
-                db['count'] = 9499
-            db['count'] += 1
-            port = db['count']
+        user = models.User.query.filter(models.User.username == username).first()
+        if not user:
+            port = 9499 + models.User.query.count() + 1
             # start server
             pid = run_server(ip_dir, port)
-            users = db.get('users', dict())
-            users[username] = {'pid': pid, 'port': port}
-            db['users'] = users
+            user = models.User()
+            user.username = username
+            user.nbserver_port = port
+            user.nbserver_pid = pid
+            db.session.add(user)
+            db.session.commit()
             # sleep to let the server start and listen
             sh.sleep(1)
         else:
-            port = db['users'][username]['port']
+            port = user.nbserver_port
         return redirect('{0}:{1}'.format(NB_URL, port))
     return render_template('login.jinja.html', form=form)
 
 def run_server(ip_dir, port):
     """ Run a notebook server with a given ipython directory and port.
         Returns a PID.
-    """ 
+    """
     pid = subprocess.Popen(['/home/ubuntu/repos/venv/bin/ipython',
                             'notebook',
                             '--profile=nbserver',
@@ -89,7 +94,6 @@ def create_user(username):
 
     os.makedirs(ip_dir)
     os.makedirs(conf_dir)
-    os.makedirs(nb_dir)
     os.makedirs(data_dir)
     sh.touch(log_file)
 
@@ -105,7 +109,5 @@ def create_user(username):
     config_file.close()
 
     # copy data files over
-    shutil.copytree('/home/ubuntu/repos/pycon2013/data/',
-                    '{0}/data'.format(nb_dir))
-    shutil.copy('/home/ubuntu/repos/pycon2013/questions.ipynb',
-                '{0}/questions.ipynb'.format(nb_dir))
+    shutil.copytree('/home/ubuntu/repos/pycon2013/',
+                    '{0}'.format(nb_dir))

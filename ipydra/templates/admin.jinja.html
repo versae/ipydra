@@ -4,8 +4,8 @@
   <h2>IPydra Notebook Listing</h2>
 
   <ul>
-  {% for username, info in notebooks.iteritems() %}
-    <li><a href="{{ NB_URL }}:{{ info['port'] }}">{{ username }}</a></li>
+  {% for user in users %}
+    <li><a href="{{ NB_URL }}:{{ user.nbserver_port }}">{{ user.username }}</a></li>
   {% endfor %}
   <ul>
 
