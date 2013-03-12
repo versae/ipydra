@@ -21,4 +21,4 @@ def create_app():
     return app
 
 ROOT_DIR = '/home/ubuntu/repos/ipydra/data/'
-NB_URL = 'https://pycon.unata.com'
+NB_URL = 'http://pycon.unata.com'

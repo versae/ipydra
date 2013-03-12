@@ -2,7 +2,6 @@
 # Template for ipython notebook config
 
 c = get_config()
-c.NotebookApp.certfile = '/home/ubuntu/repos/mycert.pem'
 c.NotebookApp.ip = '*'
 c.NotebookApp.enable_mathjax = True
 c.NotebookApp.open_browser = False
