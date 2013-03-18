@@ -19,27 +19,32 @@ dependencies
 usage
 =====
 
-first create the db file:
-```python
-from ipydra import db, create_app
-db.create_all(app=create_app())
-```
-then run the development server:
-```python
-python ipydra/runserver.py
-```
-or make an wsgi file and server it from apache:
-```python
-""" example wsgi file with virtualenv"""
-activate_this = '/home/ubuntu/repos/venv/bin/activate_this.py'
-execfile(activate_this, dict(__file__=activate_this))
+1. copy the ipydra.cfg.default to ipydra.cfg and configure
 
-import site
-site.addsitedir('/home/ubuntu/repos/ipydra')
+2. create the db file
+  
+  ```python
+  from ipydra import db, create_app
+  db.create_all(app=create_app())
+  ```
 
-from ipydra import create_app
-application = create_app()
-```
+3. run the development server
+  ```python
+  python ipydra/runserver.py
+  ```
+
+  or make an wsgi file and server it from apache
+  ```python
+  """ example wsgi file with virtualenv"""
+  activate_this = '/home/ubuntu/repos/venv/bin/activate_this.py'
+  execfile(activate_this, dict(__file__=activate_this))
+
+  import site
+  site.addsitedir('/home/ubuntu/repos/ipydra')
+
+  from ipydra import create_app
+  application = create_app()
+  ```
 
 notes
 =====
