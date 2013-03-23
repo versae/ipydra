@@ -5,30 +5,25 @@ Web interface for spawning IPython Notebook servers. Includes an admin interface
 
 Used in PyCon 2013 tutorial: https://us.pycon.org/2013/schedule/presentation/28/
 
-dependencies
-============
-* Flask 0.9
-* Flask-SQLAlchemy 0.16
-* Flask-WTF 0.12
-* Jinja2 2.6
-* WTForms 1.0.3
-* IPython 0.13.1
-* PyZMQ 2.2.0.1
-* Tornado 2.4.1
-
 usage
 =====
 
-1. copy the ipydra.cfg.default to ipydra.cfg and configure
+1. install dependencies
 
-2. create the db file
-  
+  ```
+  pip install -r requirements.txt
+  ```
+
+2. copy the ipydra.cfg.default to ipydra.cfg and configure
+
+3. create the db file
+
   ```python
   from ipydra import db, create_app
   db.create_all(app=create_app())
   ```
 
-3. run the development server
+4. run the development server
   ```python
   python ipydra/runserver.py
   ```
