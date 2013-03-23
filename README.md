@@ -46,6 +46,8 @@ notes
 
 * Flask development server will fail to restart if child notebook servers are still running. Not sure if there's a fix for this, but it doesn't happen with apache.
 
+* Exposing IPython notebooks listening on all IP addresses is highly insecure. I highly recommend running this in a dedicated VM or sandboxed environment.
+
 credits
 =======
 
