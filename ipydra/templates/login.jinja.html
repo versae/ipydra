@@ -38,7 +38,11 @@
 {% block content %}
   <form class="form-signin" method="POST">
     <h2 class="form-signin-heading">IPydra</h2>
-    {{ form.username(class='input-block-level', placeholder='Your username.') }}
+    {% if not is_valid %}
+    <h4>Username or password are invalid</h4>
+    {% endif %}
+    {{ form.username(class='input-block-level', placeholder='Username') }}
+    {{ form.password(class='input-block-level', type='password', placeholder='Password') }}
     <button class="btn btn-primary" type="submit">Let's go!</button>
   </form>
   {% if form.errors %}

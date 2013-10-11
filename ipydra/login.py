@@ -5,27 +5,19 @@ import time
 
 from flask import Blueprint
 from flask import redirect
+from flask import request
+from flask import Response
 from flask import render_template
-from flask.ext.wtf import Form
-from flask.ext.wtf import TextField
 
 from ipydra import db
 from ipydra import models
 from ipydra import DATA_DIR
 from ipydra import BASE_URL
 from ipydra import INITDATA_DIR
+from ipydra.backends import LoginForm
+
 
 bp = Blueprint('login', __name__)
-
-class LoginForm(Form):
-    """ A simple login form for front end.
-    """
-    username = TextField('Username')
-
-    def validate(self):
-        if not self.username.data.isalnum():
-            return False
-        return True
 
 
 @bp.route('/', methods=['GET', 'POST'])
@@ -33,9 +25,11 @@ def login():
     """ Login view which redirects the user to the spawned servers.
     """
     form = LoginForm(csrf_enabled=False)
-    if form.validate_on_submit():
+    form_is_valid = form.validate_on_submit()
+    if form_is_valid:
         username = str(form.username.data)
-        user = models.User.query.filter(models.User.username == username).first()
+        users = models.User.query.filter(models.User.username == username)
+        user = users.first()
         # create user model if it doesn't exist for the given username
         if not user:
             # get the next server port
@@ -51,7 +45,7 @@ def login():
             create_user_dir(username)
         # spawn the notebook server if its not currently running
         if (not user.nbserver_pid or
-            not os.path.exists('/proc/{0}'.format(user.nbserver_pid))):
+                not os.path.exists('/proc/{0}'.format(user.nbserver_pid))):
             ip_dir = '{0}/{1}/.ipython'.format(DATA_DIR, username)
             user.nbserver_pid = run_server(ip_dir, user.nbserver_port)
             user = db.session.merge(user)
@@ -59,18 +53,29 @@ def login():
             # sleep to let server start listening
             time.sleep(1)
         return redirect('{0}:{1}'.format(BASE_URL, user.nbserver_port))
-    return render_template('login.jinja.html', form=form)
+    return render_template('login.jinja.html', form=form,
+                           is_valid=form_is_valid)
+
+
+@bp.route('/proxy/')
+def proxy():
+    response = Response(None, mimetype='text/plain')
+    return response
+
 
 def run_server(ip_dir, port):
     """ Run a notebook server with a given ipython directory and port.
         Returns a PID.
     """
-    pid = subprocess.Popen(['ipython',
-                            'notebook',
-                            '--profile=nbserver',
-                            '--NotebookApp.port={0}'.format(port),
-                            '--NotebookApp.ipython_dir={0}'.format(ip_dir)]).pid
+    pid = subprocess.Popen([
+        'ipython',
+        'notebook',
+        '--profile=nbserver',
+        '--NotebookApp.port={0}'.format(port),
+        '--NotebookApp.ipython_dir={0}'.format(ip_dir)
+    ]).pid
     return pid
+
 
 def create_user_dir(username):
     """ Create a new user's directory structure.

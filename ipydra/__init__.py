@@ -15,12 +15,16 @@ config.set('ipydra', 'DB_URI', 'sqlite:///ipydra.db')
 config.set('ipydra', 'BASE_URL', 'http://localhost')
 config.set('ipydra', 'DATA_DIR', '~/.ipydra')
 config.set('ipydra', 'INITDATA_DIR', '')
+config.add_section('webdav')
+config.set('webdav', 'DAV_URI', '')
 # load configuration file
 config.read('ipydra.cfg')
 DB_URI = os.path.expanduser(config.get('ipydra', 'DB_URI'))
 BASE_URL = os.path.expanduser(config.get('ipydra', 'BASE_URL'))
 DATA_DIR = os.path.expanduser(config.get('ipydra', 'DATA_DIR'))
 INITDATA_DIR = os.path.expanduser(config.get('ipydra', 'INITDATA_DIR'))
+DAV_URI = os.path.expanduser(config.get('webdav', 'DAV_URI'))
+
 
 def create_app():
     """ Creates and returns a flask app instance instance.
@@ -36,4 +40,5 @@ def create_app():
     from admin import bp as bp_admin
     app.register_blueprint(bp_admin, url_prefix='/admin')
 
+    db.create_all(app=app)
     return app
