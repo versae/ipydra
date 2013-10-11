@@ -9,3 +9,6 @@ BASE_URL = http://localhost
 DATA_DIR = ~/.ipydra
 # Initial data to copy to user's notebook folder
 #INITDATA_DIR = ~/path_to_initial_data
+
+#[webdav]
+#DAV_URI = webdav.host
