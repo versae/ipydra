@@ -1,7 +1,10 @@
+import httplib2
 import os
+import re
 import subprocess
 import shutil
 import time
+from urllib import urlencode
 
 from flask import Blueprint
 from flask import redirect
@@ -18,6 +21,13 @@ from ipydra.backends import LoginForm
 
 
 bp = Blueprint('login', __name__)
+PROXY_DOMAIN = "127.0.0.1:8888"
+PROXY_FORMAT = u"http://%s/%s" % (PROXY_DOMAIN, u"%s")
+PROXY_REWRITE_REGEX = re.compile(
+    r'((?:src|action|[^_]href|project-url|kernel-url|baseurl)'
+    '\s*[=:]\s*["\']?)/',
+    re.IGNORECASE
+)
 
 
 @bp.route('/', methods=['GET', 'POST'])
@@ -57,10 +67,38 @@ def login():
                            is_valid=form_is_valid)
 
 
-@bp.route('/proxy/')
-def proxy():
-    response = Response(None, mimetype='text/plain')
+@bp.route('/proxy/', defaults={'url': ''},
+          methods=["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH"])
+@bp.route('/proxy/<path:url>',
+          methods=["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH"])
+def proxy(url):
+    conn = httplib2.Http()
+    # optionally provide authentication for server
+    #conn.add_credentials('admin','admin-password')
+    if request.method == "GET":
+        url_ending = "%s?%s" % (url, request.query_string)
+        url = PROXY_FORMAT % url_ending
+        resp, content = conn.request(url, request.method)
+    elif request.method == "POST":
+        url = PROXY_FORMAT % url
+        data = urlencode(request.data)
+        resp, content = conn.request(url, request.method, data)
+    else:
+        url = PROXY_FORMAT % url
+        resp, content = conn.request(url, request.method)
+    if content:
+        content = PROXY_REWRITE_REGEX.sub(r'\1/proxy/', content)
+    if "content-type" in resp:
+        mimetype = resp["content-type"].split(";")[0].split(",")[0]
+    else:
+        mimetype = None
+    response = Response(
+        content,
+        headers=resp,
+        mimetype=mimetype
+    )
     return response
+proxy.provide_automatic_options = False
 
 
 def run_server(ip_dir, port):
